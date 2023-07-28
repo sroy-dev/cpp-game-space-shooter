@@ -9,7 +9,91 @@ private:
     int screenWidth, screenHeight, centerX, centerY;
     int totalMenuItems = 2;
     int selectedMenuItem = 1;
-    string enabledMenuType = "NONE";
+    string selectedMenu = "startMenu"; // startMenu, pausedMenu, none
+
+    int n_Gun = 0;
+    int shipSpeed = 4;
+    int y = 30, m = y * 2;
+    int gunPts[1024];
+    int shipW = 70, shipH = 80;
+    int shipPos[4] = {
+        0,
+        0,
+        0,
+        0,
+    };
+    int objectPts[81] = {
+        40,
+        100,
+        70,
+        100 - y,
+        100,
+        100,
+        130,
+        100 - y,
+        160,
+        100,
+        190,
+        100 - y,
+        220,
+        100,
+        250,
+        100 - y,
+        280,
+        100,
+        310,
+        100 - y,
+        340,
+        100,
+        370,
+        100 - y,
+        400,
+        100,
+        430,
+        100 - y,
+        460,
+        100,
+        490,
+        100 - y,
+        520,
+        100,
+        280,
+        50,
+        40,
+        100 - y * 3 - 20,
+        70,
+        100 - y * 4 - 20,
+        100,
+        100 - y * 3 - 20,
+        130,
+        100 - y * 4 - 20,
+        160,
+        100 - y * 3 - 20,
+        190,
+        100 - y * 4 - 20,
+        220,
+        100 - y * 3 - 20,
+        250,
+        100 - y * 4 - 20,
+        280,
+        100 - y * 3 - 20,
+        310,
+        100 - y * 4 - 20,
+        340,
+        100 - y * 3 - 20,
+        370,
+        100 - y * 4 - 20,
+        400,
+        100 - y * 3 - 20,
+        430,
+        100 - y * 4 - 20,
+        460,
+        100 - y * 3 - 20,
+        490,
+        100 - y * 4 - 20,
+        520,
+        100 - y * 3 - 20
+    };
 
 public:
     SpaceShooter(int width = 600, int height = 800){
@@ -17,6 +101,11 @@ public:
         screenHeight = height;
         centerX = width/2;
         centerY = height/2;
+
+        shipPos[0] = centerX - (shipW/2);
+        shipPos[1] = screenHeight - 200 + shipH;
+        shipPos[2] = centerX + (shipW/2);
+        shipPos[3] = screenHeight - 200;
     }
 
     void start(){
@@ -24,16 +113,17 @@ public:
         initwindow(screenWidth,screenHeight,"Space Shooter",150,50);
 
 //        showPreloader();
-        showMenu();
-        listenMenuSelection();
+//        showMenu();
 
-
+        startGame();
 
         getch();
         closegraph();
     }
 
 private:
+
+    // show preloader
     void showPreloader(){
         int logoH = 100, logoW = 100;
         int progressH = 10, progressW = 100;
@@ -49,23 +139,32 @@ private:
         cleardevice();
     }
 
+    // show menu
     void showMenu(string type = "startMenu"){
-        int menuItemHeight = 60;
-
         // set selected menu in globally
-        enabledMenuType = type;
+        selectedMenu = type;
 
+        if(selectedMenu == "startMenu" || selectedMenu == "pausedMenu"){
+            drawMenu();
+            listenMenuSelection();
+        }
+
+    }
+    void drawMenu(){
+        int menuItemHeight = 60;
         cleardevice();
         setcolor(COLOR(0,247,6));
         settextstyle(DEFAULT_FONT, HORIZ_DIR, 4);
 
         int itemXPos = centerX - 60, itemYPos = centerY - 100;
+
         outtextxy(itemXPos, itemYPos + (menuItemHeight * 0), "START");
         outtextxy(itemXPos, itemYPos + (menuItemHeight * 1), "EXIT");
 
         // Draw the selection arrow
-        setcolor(COLOR(247,0,0));
-        outtextxy(centerX - 100, centerY - 100 + ((selectedMenuItem - 1) * menuItemHeight), ">");
+        setcolor(COLOR(0,255,240));
+        settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
+        outtextxy(itemXPos - 40, itemYPos + 5 + ((selectedMenuItem - 1) * menuItemHeight), ">");
 
         //help text
         setcolor(COLOR(0,247,6));
@@ -81,119 +180,82 @@ private:
         }else{
             selectedMenuItem = (selectedMenuItem % totalMenuItems) + 1;
         }
-        cout << selectedMenuItem << endl;
-        showMenu();
+        drawMenu();
     }
 
-    void upKeyAction(){
-        toggleMenuItem("UP");
-    }
-    void downKeyAction(){
-        toggleMenuItem("DOWN");
-    }
-    void enterKeyAction(){
-
-    }
-
+    // listen keyboard button up, down, enter for action for menu. finally delay 100 ms for long press issue handle
     void listenMenuSelection() {
-        int choice = 1;
         while(true) {
+            if(selectedMenu != "startMenu" && selectedMenu != "pausedMenu"){
+                break;
+            }
             if(GetAsyncKeyState(VK_UP)) {
-                upKeyAction();
+                cout << "up pressed" << endl;
+                toggleMenuItem("UP");
             } else if(GetAsyncKeyState(VK_DOWN)) {
-                downKeyAction();
+                cout << "down pressed" << endl;
+                toggleMenuItem("DOWN");
             } else if(GetAsyncKeyState(VK_RETURN)) {
+                cout << "enter pressed" << endl;
+                if(selectedMenuItem == 1){
+                    startGame();
+                }else if(selectedMenuItem == 2){
+                    closegraph();
+                }
             }
             delay(100);
         }
     }
 
-    // Functions Execution
-    void Function_Execution(int choice, int Theme) {
-        if(choice == 1) {
-            cleardevice();
-            setcolor(LIGHTGREEN);
-            settextstyle(0, HORIZ_DIR, 4);
-            outtextxy(150, 250, "COMING SOON...");
-            //        PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-//            Esc_Theme(1, Theme);
-        }
-        if(choice == 2) {
-            cleardevice();
-//            Game_Interface(Theme);
-//            Multiplayer(Theme);
-        }
-        if(choice == 3) {
-            cleardevice();
-            if(Theme == 1) {
-                readimagefile("res/menu_controls1.jpg", 250, 20, 450, 50);
-                readimagefile("res/menucontrols1.jpg", 210 + 10, 80, 490 - 10, 200);
-                readimagefile("res/game_controls1.jpg", 250, 250, 450, 280);
-                readimagefile("res/gamecontrols1.jpg", 120, 300 + 10, 580, 330);
-                readimagefile("res/other_controls1.jpg", 260, 380, 440, 410);
-                readimagefile("res/othercontrols1.jpg", 210 - 10, 440, 490 + 10, 560);
+    void startGame(){
+        selectedMenu = "none";
+        cleardevice();
+        while(1){
+
+            if(GetAsyncKeyState(VK_RIGHT)){
+//                if(shipPts[6] < 630){
+//                    for(int i = 0 ; i < 24 ; i = i + 2){
+//                        shipPts[i]+=shipSpeed;
+//                    }
+//                }
+            }else if(GetAsyncKeyState(VK_LEFT)){
+//                if(shipPts[16] > 0){
+//                    for(int i = 0 ; i < 24 ; i = i + 2){
+//                        shipPts[i]-=shipSpeed;
+//                    }
+//                }
             }
-            if(Theme == 2) {
-                readimagefile("res/menu_controls2.jpg", 250, 20, 450, 50);
-                readimagefile("res/menucontrols2.jpg", 210, 80, 490, 200);
-                readimagefile("res/game_controls2.jpg", 250, 250, 450, 280);
-                readimagefile("res/gamecontrols2.jpg", 120, 300 + 10, 580, 330);
-                readimagefile("res/other_controls2.jpg", 260, 380, 440, 410);
-                readimagefile("res/othercontrols2.jpg", 210 - 10, 440, 490 + 10, 560);
-            }
-            //        PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-//            Esc_Theme(3, Theme);
-        }
-        if(choice == 4) {
-            int page = 0;
-            //        PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
+
+            drawShip();
+
+
+            delay(40);
             cleardevice();
-            for(int i = 100; i < 1200; i++) {
-                setfillstyle(SOLID_FILL, BLACK);
-                if(Theme == 1) {
-                    readimagefile("res/title1.jpg", 50, 620 - i, 650, 730 - i);
-                    readimagefile("res/about_g.jpg", 50, 800 - i, 650, 1320 - i);
-                    bar(50, 1320 - i, 650, 2000 - i);
-                }
-                if(Theme == 2) {
-                    readimagefile("res/title2.jpg", 50, 620 - i, 650, 730 - i);
-                    readimagefile("res/about_b.jpg", 50, 800 - i, 650, 1320 - i);
-                    bar(50, 1320 - i, 650, 2000 - i);
-                }
-                if(GetAsyncKeyState(VK_ESCAPE)) {
-                    break;
-                }
-                if(GetAsyncKeyState(VK_F6)) {
-                    Function_Execution(4, 1);
-                    //            PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-                }
-                if(GetAsyncKeyState(VK_F7)) {
-                    Function_Execution(4, 2);
-                    //            PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-                }
-                page = 1 - page;
-                delay(1);
-            }
-//            showMenu(Theme);
-            //         PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-            listenMenuSelection();
         }
-        if(choice == 5) {
-            cleardevice();
-            if(Theme == 1) {
-                readimagefile("res/quitmsg1.jpg", 50, 200, 650, 250);
-                readimagefile("res/yes1.jpg", 100 + 50, 300 + 10, 170 + 50, 330 + 10);
-                readimagefile("res/no1.jpg", 530 - 50, 300 + 10, 600 - 50, 330 + 10);
-            }
-            if(Theme == 2) {
-                readimagefile("res/quitmsg2.jpg", 50, 200, 650, 250);
-                readimagefile("res/yes2.jpg", 100 + 50, 300 + 10, 170 + 50, 330 + 10);
-                readimagefile("res/no2.jpg", 530 - 50, 300 + 10, 600 - 50, 330 + 10);
-            }
-            //        PlaySound(TEXT("res/select_option.wav"),NULL,SND_SYNC);
-//            Quit(Theme);
-        }
+//        drawGun();
+
     }
+
+    void drawShip(){
+        readimagefile("assets/spaceShip.jpg",shipPos[0],shipPos[1],shipPos[2],shipPos[3]);
+    }
+
+//    void drawGun(){
+//        if(objectPts[35]>0){
+//            int length = shipPts[1] - 20;
+//            float del_X = shipPts[0] - 280 ;
+//            del_X = del_X/length;
+//            int del_Y = 1;
+//
+//            for(int i = 0,j=0 ; i < n_Gun ; i ++,j=j+2){
+//                setcolor(RED);
+//               // floodfill(gunPts[j],gunPts[j+1],RED);
+//                circle(gunPts[j],gunPts[j+1],5);
+//                gunPts[j] += del_X*5;
+//                gunPts[j+1] += del_Y*5;
+//            }
+//        }
+//    }
 
 
 

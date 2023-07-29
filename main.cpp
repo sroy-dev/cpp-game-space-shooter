@@ -124,9 +124,9 @@ public:
         safeLine = screenHeight - 200 + shipH;
 
         shipPos[0] = centerX - (shipW/2);
-        shipPos[1] = screenHeight - 200 + shipH;
+        shipPos[1] = screenHeight - 120;
         shipPos[2] = centerX + (shipW/2);
-        shipPos[3] = screenHeight - 200;
+        shipPos[3] = screenHeight - 120 + shipH;
     }
 
     void start(){
@@ -146,11 +146,11 @@ private:
 
     // show preloader
     void showPreloader(){
-        int logoH = 100, logoW = 100;
+        int logoH = 100, logoW = 88;
         int progressH = 10, progressW = 100;
         int logoProgressGap = 20;
 
-        readimagefile("assets/logo.jpg",centerX-(logoW/2),centerY-logoH,centerX+(logoW/2),centerY);
+        readimagefile("assets/spaceShip.jpg",centerX-(logoW/2),centerY-logoH,centerX+(logoW/2),centerY);
         rectangle(centerX-progressW/2,centerY+logoProgressGap,centerX+progressW/2,centerY+logoProgressGap+progressH);
         setcolor(CYAN);
         for(int i=0;i<=progressW-2;i++){
@@ -361,8 +361,10 @@ private:
 
     void drawBossBullets(){
         if(enemyShipsPos[35]>0){
-            int length = 400;
-            float del_X = 50 ;
+//            int length = 400;
+//            float del_X = 50 ;
+            int length = shipPos[1] - 20;
+            float del_X = shipPos[0] - 265 ;
             del_X = del_X/length;
             int del_Y = 1;
 
@@ -435,7 +437,8 @@ private:
                 // inside ship x pos check
                 if(shipPos[0]<=bossBulletsPos[k] && shipPos[2]>=bossBulletsPos[k]){
                     // inside ship y position
-                    if(shipPos[1]>=bossBulletsPos[k+1] && shipPos[3]<=bossBulletsPos[k+1]){
+                    if(shipPos[1]<=bossBulletsPos[k+1] && shipPos[3]>=bossBulletsPos[k+1]){
+//                        cout << shipPos[1] << " " << bossBulletsPos[k+1] << endl;
                         life--;
                         bossBulletsPos[k+1]=screenHeight + 500;
                         if(life==0){

@@ -133,10 +133,10 @@ public:
 
         initwindow(screenWidth,screenHeight,"Space Shooter",150,50);
 
-//        showPreloader();
-//        showMenu();
+        showPreloader();
+        showMenu();
 
-        startGame();
+//        startGame();
 
         getch();
         closegraph();
@@ -365,14 +365,17 @@ private:
 //            float del_X = 50 ;
             int length = shipPos[1] - 20;
             float del_X = shipPos[0] - 265 ;
+//            cout << del_X << " " << length << endl;
             del_X = del_X/length;
             int del_Y = 1;
+
+//            cout << del_X << " " << length << endl;
 
             for(int i = 0,j=0 ; i < n_BossBullets ; i ++,j=j+2){
                 setcolor(RED);
                 circle(bossBulletsPos[j],bossBulletsPos[j+1],5);
                 bossBulletsPos[j] += del_X*5;
-                bossBulletsPos[j+1] += del_Y*5;
+                bossBulletsPos[j+1] += del_Y*7;
             }
         }
     }

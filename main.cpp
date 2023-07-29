@@ -34,13 +34,13 @@ private:
     int life = 5;
     int isGameOver = 0;
 
-    int safeLine = 410;
+    int safeLine = 0;
     int totalEnemyShip = 17*2+1;
     int boss_hp = 5;
 
 
-    int objectSpeed = 4;
     int temp=0;
+    int enemyShipSpeed = 5;
     int enemyShipsPos[81] = {
         40,
         100,
@@ -120,6 +120,8 @@ public:
         screenHeight = height;
         centerX = width/2;
         centerY = height/2;
+
+        safeLine = screenHeight - 200 + shipH;
 
         shipPos[0] = centerX - (shipW/2);
         shipPos[1] = screenHeight - 200 + shipH;
@@ -270,10 +272,9 @@ private:
             drawEnemyShips();
             drawBossBullets();
 
-            checkCollision();
-            checkCollisionShip();
+            checkBulletCollision();
+            checkBossBulletsCollision();
             setfillstyle(SOLID_FILL,BLACK);
-            bar(0,0,640,30);
             drawScore(score);
             drawLife();
 
@@ -303,7 +304,6 @@ private:
         } else {
             snprintf(msg, sizeof(msg), "Your Score:%d", score);
             while(1) {
-                //PlaySoundW(TEXT(""),NULL,SND_NOWAIT);
                 setcolor(RED);
                 settextstyle(8, HORIZ_DIR, 1);
                 outtextxy(240, 200, "Game Over");
@@ -349,7 +349,7 @@ private:
             }
             if(temp==20){
                 if(i!=17){
-                    enemyShipsPos[j+1] += objectSpeed;
+                    enemyShipsPos[j+1] += enemyShipSpeed;
                 }
             }
         }
@@ -391,7 +391,7 @@ private:
     }
 
 
-    void checkCollision(){
+    void checkBulletCollision(){
         int width = 20;
         if(totalEnemyShip<=0){
             isGameOver = 1;
@@ -429,15 +429,18 @@ private:
         }
     }
 
-    void checkCollisionShip(){
+    void checkBossBulletsCollision(){
         for(int j = 0,k=0 ; j < n_BossBullets ; j++,k=k+2){
             if(bossBulletsPos[k+1]>0){
-                if(shipPos[16]<=bossBulletsPos[k] && bossBulletsPos[k]<=shipPos[6]){
-                    if(shipPos[1]<=bossBulletsPos[k+1] && bossBulletsPos[k+1]<=shipPos[7]){
+                // inside ship x pos check
+                if(shipPos[0]<=bossBulletsPos[k] && shipPos[2]>=bossBulletsPos[k]){
+                    // inside ship y position
+                    if(shipPos[1]>=bossBulletsPos[k+1] && shipPos[3]<=bossBulletsPos[k+1]){
                         life--;
-                        bossBulletsPos[k+1]=1000;
-                        if(life==0)
+                        bossBulletsPos[k+1]=screenHeight + 500;
+                        if(life==0){
                             isGameOver = 2;
+                        }
                     }
                 }
             }
